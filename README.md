@@ -2,14 +2,12 @@
 This script will help you prepare a USB-Drive to store your encrypted data.\
 It will remove all existing filesystems and partitions (no data override!) and\
 (for VeraCrypt-Partitions)\
-	- create a small FAT32 partition containing VeraCrypt installer for
-	  Windows, Linux and Mac (with a little set of instructions)
-	- create an empty partition with the remaining disk space
-		- select this partition in VeraCrypt to use as encrypted one
+- create a small FAT32 partition containing VeraCrypt installer for Windows, Linux and Mac (with a little set of instructions)
+- create an empty partition with the remaining disk space
+	- select this partition in VeraCrypt to use as encrypted one
 OR (for VeraCrypt-Container)
-	- create an exFAT partition containing the same installers and another
-	  set of instructions
-		- store the VeraCrypt-Container on this partition
+- create an exFAT partition containing the same installers and another set of instructions
+	- store the VeraCrypt-Container on this partition
 
 ## Software that should be installed
 - bash
