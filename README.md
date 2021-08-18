@@ -1,6 +1,6 @@
 # USB-Drive-Encryption Preparation with VeraCrypt
 This script will help you prepare a USB-Drive to store your encrypted data.\
-It will remove all existing filesystems and partitions (no data override!) and\
+It will remove all existing filesystems and partitions (no data override!) and
 
 (for VeraCrypt-Partitions)
 - create a small FAT32 partition containing VeraCrypt installer for Windows, Linux and Mac (with a little set of instructions)
