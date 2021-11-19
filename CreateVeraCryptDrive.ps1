@@ -52,7 +52,7 @@ try {
 } catch {
     echo "Unable to locate paritions on selected disks."
     $pc = Read-Host "Proceed? (y/n)"
-    if ($pc -eq "N" -or $pc -eq "N") { exit }
+    if ($pc -eq "N" -or $pc -eq "n") { exit }
 }
 foreach ($p in $oldps) {
 	Remove-Partition -InputObject $p
@@ -93,6 +93,101 @@ elseif ($mode -eq 2)
 	Copy-Item "${wd}\export\README-File.txt" "${letter}:\README.txt"
 }
 #endregion
+
+#region automatic configuration with vera crypt
+echo ""
+echo "(4) [optional] Applying VeraCrypt..."
+if ($mode -eq 2) #user selected encrypted container as option
+{
+    echo "This script can create the encrypted VeraCrypt-Container for you."
+    $pc = Read-Host "Create container with script? (y/n)"
+    if ($pc -eq "Y" -or $pc -eq "y") { 
+        #use vercrypt cli to create an encrypted container
+        #first collect information
+        echo "Provide path to VeraCrypt-Execurtables-Directory (e.g. C:\Program Files\VeraCrypt) containing the executable 'VeraCrypt Format.exe'"
+        $vcDir = Read-Host "VeraCrypt directory"
+        echo "Select encryption options"
+        echo " Encryption algorithm"
+        echo "  1. AES (recommended)"
+        echo "  2. Serpent"
+        echo "  3. Twofish"
+        echo "  4. AES(Twofish)"
+        echo "  5. AES(Twofish(Serpent))"
+        echo "  6. Serpent(AES)"
+        echo "  7. Serpent(Twofish(AES))"
+        echo "  8. Twofish(Serpent)"
+        $encalgorithmNum = Read-Host "(1/2/.../8)"
+        echo " Hash algorithm"
+        echo "  1. sha256"
+        echo "  2. sha512 (recommended)"
+        echo "  3. whirlpool"
+        echo "  4. ripemd160 "
+        $hashalgorithmNum = Read-Host "(1/2/3/4)"
+        echo " Password"
+        $psw1 = Read-Host 'Enter' -AsSecureString
+        $psw2 = Read-Host 'Reenter' -AsSecureString
+        #turn securestring into strings and compare values to make sure inputs match
+        while ([Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($psw1)) -ne [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($psw2))) {
+            #if not force reentering
+            Write-Warning " Inputs do not match!"
+            $psw1 = Read-Host 'Enter' -AsSecureString
+            $psw2 = Read-Host 'Reenter' -AsSecureString
+        }
+
+
+        #collect remaining information from system/ turn numbers into valid parametes
+            #max container size
+        $maxsize = (Get-PSDrive $letter).Free
+            #get encryption algorithm
+        switch ($encalgorithmNum)                         
+        {                        
+            1 {$encalgorithm = "AES"}                        
+            2 {$encalgorithm = "Serpent"}                        
+            3 {$encalgorithm = "Twofish"}                        
+            4 {$encalgorithm = "AES(Twofish)"}
+            5 {$encalgorithm = "AES(Twofish(Serpent))"}    
+            6 {$encalgorithm = "Serpent(AES)"}    
+            7 {$encalgorithm = "Serpent(Twofish(AES))"}    
+            8 {$encalgorithm = "Twofish(Serpent)"}                            
+            Default {
+                Write-Error "Invalid input! Encryption algorithm can only be a number from 1 to 8."
+                exit
+            }                        
+        }
+            #get hash algorithm
+        switch ($hashalgorithmNum)                         
+        {                        
+            1 {$hashalgorithm = "sha256"}                        
+            2 {$hashalgorithm = "sha512"}                        
+            3 {$hashalgorithm = "whirlpool"}                        
+            4 {$hashalgorithm = "ripemd160"}                          
+            Default {
+                Write-Error "Invalid input! Hash algorithm can only be a number from 1 to 4."
+                exit
+            }                        
+        } 
+            #get psw
+        $psw = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($psw1))
+
+        #execute veracrypt
+        cd $vcDir
+        & '.\VeraCrypt Format.exe' /create "{letter}:\data.hc" /size $maxsize /password "${psw}" /hash $hashalgorithm /encryption $encalgorithm /filesystem NTFS
+        $psw = "ashbsidfghuighudfbzgzidfzbgtreu7btguirszn" #'hide' psw
+
+        #mount new container
+        $pc = Read-Host "Mount new container? (y/n)"
+        if ($pc -eq "Y" -or $pc -eq "y") {
+            echo "Sorry, this feature isn't implemented yet!"
+        }
+    }
+}
+elseif ($mode -eq 1) #user selected a partition to encrypt
+{
+    echo "Sorry, currently this script isn't able to encrypt a partition with VeraCrypt."
+    echo " Please open the application manually."
+}
+#endregion
+
 
 #region final output
 echo ""
