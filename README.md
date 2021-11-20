@@ -11,6 +11,8 @@ OR (for VeraCrypt-Container)
 - create an exFAT partition containing the same installers and another set of instructions
 	- store the VeraCrypt-Container on this partition
 
+Optionally you can start the VeraCrypt-Partition-Encryption/ Container-Creation from the script.
+
 ## Linux
 
 ### Software that should be installed
@@ -26,7 +28,6 @@ OR (for VeraCrypt-Container)
 - download all necessary VeraCrypt installers and their dependencies
 - replace the placeholder-zip (export/VeraCrypt-1.24-Installer.zip) with an archive containing the installers
 - make the SH-File executable
-- (optional) create an DESKTOP-File as shortcut to the SH-File
 - plug in a USB-Drive
 - run the script and follow the instructions
 
@@ -35,7 +36,6 @@ OR (for VeraCrypt-Container)
 ### How-To Use
 - download all necessary VeraCrypt installers and their dependencies
 - replace the placeholder-zip (export/VeraCrypt-1.24-Installer.zip) with an archive containing the installers
-- (optional) create an link for the file
 - plug in a USB-Drive
 - execute the PS1-File and follow the instructions
 

@@ -3,6 +3,7 @@ clear
 echo "USB-Drive-Encryption Preparation"
 
 echo ""
+#make sure script was executed as root
 [ "$UID" -eq 0 ] || echo "Hello $(whoami)! Root-privileges are required."
 [ "$UID" -eq 0 ] || exec sudo "$0" "$@"
 
@@ -15,6 +16,7 @@ read partitionCnt
 
 echo ""
 echo "(1) Removing old partitions..."
+#use while-loop to remove all partitions on the drive with fdisk-utility
 i=1
 while [ $i -le $partitionCnt ]
 do
@@ -41,6 +43,7 @@ echo ""
 echo "(2) Creating new partition(s) and filesystem(s)..."
 if [ "$methode" = "1" ]
 then
+#use fdisk-utility to create 2 primary partitions - first using 64M to store the installers, second using the remainig space to be encrypted later on
 fdisk $drive <<EEOF
 n
 p
@@ -58,9 +61,11 @@ p
 
 w
 EEOF
+#create filesystem FAT32 on first partition
 mkfs -t vfat "$drive"1
 elif [ "$methode" = "2" ]
 then
+#use fdisk-utility to create a new primary partition on the drive, that uses the whole disk space
 fdisk $drive <<EEOF
 n
 p
@@ -73,6 +78,7 @@ t
 a
 w
 EEOF
+#create filesystem exFAT on partition
 mkfs -t exfat "$drive"1
 else
 echo "Invalid input! [ENTER] to exit"
@@ -98,6 +104,18 @@ fi
 
 echo
 echo "(4) Opening VeraCrypt..."
-veracrypt
+echo "Do you want to encrypt the drive right now (y/n)?"
+read startvc
+if [ "$startvc" = "y" ]
+then
+if [ "$methode" = "1" ]
+then
+#open veracrypt cli to encrypt partition
+veracrypt -t -c "$drive"2
+else
+#open veracrypt cli to create encrypted container
+veracrypt -t -c "$path/data.hc"
+fi
+fi
 
 exit 0
